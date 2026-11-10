@@ -237,6 +237,86 @@ function subirMusica(audio) {
     }, 80);
 }
 
+
+
+
+
+// Cargar la API de YouTube
+function loadYouTubeAPI() {
+    const script = document.createElement('script');
+    script.src = 'https://www.youtube.com/iframe_api';
+    document.body.appendChild(script);
+    window.onYouTubeIframeAPIReady = initializeYouTubePlayer;
+}
+
+// Función llamada por la API de YouTube
+function initializeYouTubePlayer() {
+    if (player) return; // ya inicializado, evita crear el player dos veces
+
+    player = new YT.Player('youtube-player', {
+        height: '1',
+        width: '1',
+        videoId: 'vwp1yxtcD7I',
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            loop: 1,
+            modestbranding: 1,
+            playsinline: 1,
+            rel: 0,
+            showinfo: 0,
+            iv_load_policy: 3,
+            playlist: 'vwp1yxtcD7I'
+        },
+        events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange,
+            'onError': onPlayerError
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    playerReady = true;
+    const musicPlayer = document.getElementById('musicPlayer');
+    const musicToggle = document.getElementById('musicToggle');
+
+    if (musicToggle) {
+        musicToggle.addEventListener('click', toggleMusic);
+    }
+
+    // Caso borde: el usuario ya hizo click en "con música" antes de que el
+    // player terminara de inicializar (ej. conexión lenta). Lo reproducimos
+    // apenas esté listo.
+    if (enableMusic && !isPlaying) {
+        if (musicPlayer) musicPlayer.style.display = 'block';
+        event.target.unMute();
+        event.target.setVolume(100);
+        event.target.playVideo();
+        isPlaying = true;
+        updateMusicIcon();
+    }
+}
+
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        isPlaying = true;
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        isPlaying = false;
+    }
+    updateMusicIcon();
+}
+
+function onPlayerError(event) {
+    console.log('Error al cargar el video de YouTube');
+    const musicPlayer = document.getElementById('musicPlayer');
+    musicPlayer.style.display = 'block';
+    isPlaying = false;
+    updateMusicIcon();
+}
+
 function toggleMusic() {
     const audio = document.getElementById('bgMusic');
     if (!audio) return;
@@ -251,16 +331,17 @@ function toggleMusic() {
 
 function updateMusicIcon() {
     const volumeIcon = document.getElementById('volumeIcon');
+    
     if (volumeIcon) {
         if (isPlaying) {
             volumeIcon.innerHTML = `
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#A95F73" stroke="#fff" stroke-width="1"></polygon>
-                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08" stroke="#A95F73" stroke-width="2"></path>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#222" stroke="#fff" stroke-width="1"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08" stroke="#222" stroke-width="2"></path>
                 <circle cx="6.5" cy="12" r="1" fill="#D98FA3"/>
             `;
         } else {
             volumeIcon.innerHTML = `
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#A95F73" stroke="#fff" stroke-width="1"></polygon>
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="#222" stroke="#fff" stroke-width="1"></polygon>
                 <line x1="19" y1="9" x2="17" y2="11" stroke="#ff6b6b" stroke-width="2"></line>
                 <line x1="17" y1="9" x2="19" y2="11" stroke="#ff6b6b" stroke-width="2"></line>
                 <circle cx="6.5" cy="12" r="1" fill="#ff6b6b"/>
@@ -271,7 +352,7 @@ function updateMusicIcon() {
 
 // Countdown
 function initializeCountdown() {
-    const targetDate = new Date('2026-11-20T18:30:00').getTime();
+    const targetDate = new Date('2026-12-20T15:30:00').getTime();
     
     function updateCountdown() {
         const now = new Date().getTime();
@@ -437,8 +518,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function openLocation(location) {
     // Enlaces de ejemplo (dirección ficticia) - ceremonia y celebración
     const mapsUrls = {
-        ceremony: "https://maps.app.goo.gl/zJzudzb3Ge8ict166",
-        reception: "https://maps.app.goo.gl/zJzudzb3Ge8ict166"
+        ceremony: "https://maps.app.goo.gl/jGF4dqpyfrakbxSTA",
+        reception: "https://maps.app.goo.gl/jGF4dqpyfrakbxSTA"
     };
     const mapsUrl = mapsUrls[location] || mapsUrls.ceremony;
     window.open(mapsUrl, '_blank');
@@ -449,7 +530,8 @@ function openLocation(location) {
 // regalos, etc.) cuando personalices la invitación.
 
 function sharePhotos() {
-    window.open('https://photos.app.goo.gl/m5Kn7htCGSmSteeF6', '_blank');
+    // Ejemplo: aquí se debe colocar el enlace real a la carpeta de Google Drive.
+    window.open('https://photos.app.goo.gl/p9PGQHWrvLG1Bpj28', '_blank');
 }
 
 function showDressCode() {
@@ -473,7 +555,8 @@ function showGifts() {
 }
 
 function confirmAttendance() {
-    window.open('https://wa.me/18298087223?text=Confirmo%20mi%20asistencia%20a%20los%20XV%20a%C3%B1os%20de%20Nahomy%20Lucianny%20Cueto', '_blank');
+    // Ejemplo: aquí se debe colocar el enlace real al formulario de Google Forms.
+    window.open('https://docs.google.com/forms/d/e/1FAIpQLSdIYoM33yAkMmS4DZCRVmO9_IE0gZT4eEw8cV0r2PgWlYE0Ag/viewform?usp=header', '_blank');
 }
 
 // Sistema de Toast
@@ -516,3 +599,166 @@ function showToast(title, message) {
     clearCaches();
   }
 })();
+
+// =========================================================
+// Mariposas que vuelan dentro de cada sección (y la portada).
+// Cada una sigue un recorrido suave hacia puntos al azar,
+// girando hacia donde vuela. Solo se animan si la sección
+// está a la vista, para cuidar la batería del celular.
+// =========================================================
+// Mismo comportamiento que la invitación de Pilar: cada mariposa vive en
+// su lugar (a los lados) y da vueltas en un círculo suave alrededor de ese
+// punto, sin salir de su sección. Se voltea de lado al cambiar de dirección
+// y aparecen cuando el invitado llega a la sección.
+const BUTTERFLY_SPOTS = {
+    1: [[86, 22]],
+    2: [[14, 22], [86, 70]],
+    3: [[13, 18], [87, 48], [15, 82]]
+};
+
+function placeButterflies() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const mobile = window.innerWidth < 640;
+    const rand = (a, b) => Math.random() * (b - a) + a;
+    const groups = [];
+
+    document.querySelectorAll('[data-butterflies]').forEach((section) => {
+        const count = Math.min(3, parseInt(section.getAttribute('data-butterflies'), 10) || 0);
+        if (!count) return;
+        const layer = document.createElement('div');
+        layer.className = 'butterfly-layer';
+        layer.setAttribute('aria-hidden', 'true');
+        section.appendChild(layer);
+
+        const flies = BUTTERFLY_SPOTS[count].map(([px0, py], k) => {
+            const px = mobile ? (px0 < 50 ? 6 : 94) : px0;   // en celular, pegadas a los bordes
+            const el = document.createElement('img');
+            el.src = 'mariposa.webp';
+            el.alt = '';
+            el.className = 'butterfly';
+            const size = mobile ? rand(40, 58) : rand(52, 78);
+            el.style.width = size.toFixed(0) + 'px';
+            el.style.transitionDelay = (k * 0.35) + 's';
+            layer.appendChild(el);
+            return {
+                el, size, px, py,
+                rx: mobile ? rand(22, 34) : rand(30, 48),
+                ry: mobile ? rand(12, 20) : rand(16, 26),
+                period: rand(7, 11),
+                spin: Math.random() < 0.5 ? 1 : -1,
+                phase: rand(0, 6.28),
+                bob: rand(2.5, 4),
+                dir: 1, lastX: null
+            };
+        });
+        groups.push({ section, layer, flies, visible: false });
+    });
+
+    function revisarVisibles() {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        groups.forEach(g => {
+            const r = g.section.getBoundingClientRect();
+            const h = Math.max(1, r.height);
+            const visiblePx = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+            g.visible = visiblePx > Math.min(h, vh) * 0.15;
+            if (g.visible) g.layer.classList.add('is-on');
+        });
+    }
+
+    const t0 = performance.now();
+    function frame(now) {
+        revisarVisibles();
+        const t = (now - t0) / 1000;
+        for (const g of groups) {
+            if (!g.visible) continue;
+            const W = g.layer.clientWidth, H = g.layer.clientHeight;
+            for (const f of g.flies) {
+                const hImg = f.el.offsetHeight || f.size * 0.85;
+                const cx = Math.min(Math.max(W * f.px / 100, f.rx + f.size / 2), W - f.rx - f.size / 2);
+                const cy = Math.min(Math.max(H * f.py / 100, f.ry + hImg / 2), H - f.ry - hImg / 2);
+                const a = f.spin * (t / f.period) * 6.28 + f.phase;
+                const x = cx + f.rx * Math.cos(a) + f.rx * 0.18 * Math.cos(2 * a) - f.size / 2;
+                const y = cy + f.ry * Math.sin(a) + Math.sin(t * f.bob * 6.28) * 2.5 - hImg / 2;
+                const vx = f.lastX === null ? 0 : x - f.lastX;
+                f.lastX = x;
+                const target = vx < -0.02 ? -1 : (vx > 0.02 ? 1 : (f.dir >= 0 ? 1 : -1));
+                f.dir += (target - f.dir) * 0.08;
+                const tilt = Math.max(-14, Math.min(14, vx * 12));
+                f.el.style.transform =
+                    `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) rotate(${tilt.toFixed(1)}deg) scaleX(${f.dir.toFixed(3)})`;
+            }
+        }
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}
+
+// =========================================================
+// Aparición elegante de los elementos al hacer scroll
+// =========================================================
+function setupScrollReveal() {
+    const groups = [
+        { sel: '.section-title', cls: '' },
+        { sel: '.section-subtitle', cls: '' },
+        { sel: '.countdown-item', cls: 'reveal-zoom', stagger: 0.12 },
+        { sel: '.event-card > *', cls: '', stagger: 0.12 },
+        { sel: '.camera-icon, .gift-icon, .whatsapp-icon', cls: 'reveal-zoom' },
+        { sel: '.carousel-container', cls: '' },
+        { sel: '.carousel-counter', cls: '' },
+        { sel: '.party-card', cls: '', stagger: 0.2, alt: true },
+        { sel: '.gifts-container > .btn-wedding, .rsvp-container > .btn-wedding', cls: '' },
+        { sel: '.footer-content > *', cls: '', stagger: 0.15 }
+    ];
+
+    groups.forEach(g => {
+        document.querySelectorAll(g.sel).forEach((el, i) => {
+            if (el.classList.contains('reveal')) return;
+            el.classList.add('reveal');
+            let cls = g.cls;
+            if (g.alt) cls = i % 2 === 0 ? 'reveal-left' : 'reveal-right';
+            if (cls) el.classList.add(cls);
+            if (g.stagger) el.style.setProperty('--reveal-delay', (i * g.stagger) + 's');
+        });
+    });
+
+    let pendientes = Array.from(document.querySelectorAll('.reveal'));
+
+    function terminar(el) {
+        const done = (ev) => {
+            if (ev.target !== el || ev.propertyName !== 'opacity') return;
+            el.removeEventListener('transitionend', done);
+            el.classList.remove('reveal', 'is-visible', 'reveal-left', 'reveal-right', 'reveal-zoom');
+            el.style.removeProperty('--reveal-delay');
+        };
+        el.addEventListener('transitionend', done);
+        // respaldo por si transitionend no llega
+        setTimeout(() => el.classList.remove('reveal', 'reveal-left', 'reveal-right', 'reveal-zoom'), 2600);
+    }
+
+    // Revisión por posición en pantalla: funciona igual en el navegador,
+    // dentro de un iframe o en vistas previas (no depende de IntersectionObserver)
+    function revisar() {
+        if (!pendientes.length) return;
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        pendientes = pendientes.filter(el => {
+            const r = el.getBoundingClientRect();
+            const alFinal = (window.scrollY + vh) >= (document.documentElement.scrollHeight - 4);
+            if (r.top < vh * 0.9 || (alFinal && r.top < vh)) {
+                el.classList.add('is-visible');
+                terminar(el);
+                return false;
+            }
+            return true;
+        });
+    }
+
+    window.addEventListener('scroll', revisar, { passive: true, capture: true });
+    document.addEventListener('scroll', revisar, { passive: true, capture: true });
+    window.addEventListener('resize', revisar);
+    (function bucle() { revisar(); if (pendientes.length) requestAnimationFrame(bucle); })();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    placeButterflies();
+    setupScrollReveal();
+});
